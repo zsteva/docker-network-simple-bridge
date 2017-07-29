@@ -1,0 +1,14 @@
+{
+  "name": "docker-network-simple-bridge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.3",
+    "ipaddr.js": "^1.4.0",
+    "raw-body": "^2.2.0"
+  }
+}
