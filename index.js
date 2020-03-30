@@ -56,11 +56,17 @@ Object.keys(driver.call_map).forEach(function (call) {
     var func = driver.call_map[call];
 
     app.post(call, function(req, res) {
+		// console.log("REQ:", req.body);
+
         func(req.body)
             .then(function (res_data) {
+				// console.log("RES:", res_data);
+
                 res.json(res_data);
             })
             .catch(function (err) {
+				console.log("ERR:", err);
+
                 res.json({Err: err.toString()});
             });
     });

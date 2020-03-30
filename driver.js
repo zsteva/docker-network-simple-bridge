@@ -16,6 +16,17 @@ function NetworkDriver_GetCapabilities(req) {
     });
 }
 
+function spawnSync(cmd, args) {
+	console.log("spawn:", [cmd].concat(args));
+
+	var ret = child_process.spawnSync(cmd, args);
+
+	console.log("return:", ret.status);
+
+	return ret;
+}
+
+
 /* req: {
 	"NetworkID": string,
 	"IPv4Data" : [
@@ -60,14 +71,14 @@ function NetworkDriver_CreateNetwork(req) {
             config.store(req.NetworkID, cfg);
         }
 
-        var ret = child_process.spawnSync('brctl', ['addbr', cfg.bridge_name ]);
+        var ret = spawnSync('brctl', ['addbr', cfg.bridge_name ]);
 
         if (ret.status != 0) {
             reject('error create bridge : ' + ret.stderr.toString());
             return;
         }
 
-        var ret = child_process.spawnSync('ip', ['link', 'set', 'dev', cfg.bridge_name, 'up']);
+        var ret = spawnSync('ip', ['link', 'set', 'dev', cfg.bridge_name, 'up']);
 
         if (ret.status != 0) {
             reject('error up bridge : ' + ret.stderr.toString());
@@ -89,14 +100,14 @@ function NetworkDriver_DeleteNetwork(req) {
 
         if (cfg) {
 
-            var ret = child_process.spawnSync('ip', ['link', 'set', 'dev', cfg.bridge_name, 'down']);
+            var ret = spawnSync('ip', ['link', 'set', 'dev', cfg.bridge_name, 'down']);
 
             if (ret.status != 0) {
                 reject('error down bridge : ' + ret.stderr.toString());
                 return;
             }
 
-            var ret = child_process.spawnSync('brctl', ['delbr', cfg.bridge_name ]);
+            var ret = spawnSync('brctl', ['delbr', cfg.bridge_name ]);
 
             if (ret.status != 0) {
                 reject('error create bridge : ' + ret.stderr.toString());
@@ -157,21 +168,21 @@ function NetworkDriver_CreateEndpoint(req) {
 
         config.store(req.EndpointID, cfg);
 
-        var ret = child_process.spawnSync('ip', ['link', 'add', 'name', veth_h, 'type', 'veth', 'peer', 'name', veth_c ]);
+        var ret = spawnSync('ip', ['link', 'add', 'name', veth_h, 'type', 'veth', 'peer', 'name', veth_c ]);
 
         if (ret.status != 0) {
             reject('error create veth link : ' + ret.stderr.toString());
             return;
         }
 
-        var ret = child_process.spawnSync('ip', ['link', 'set', 'dev', veth_c, 'address', mac]);
+        var ret = spawnSync('ip', ['link', 'set', 'dev', veth_c, 'address', mac]);
 
         if (ret.status != 0) {
             reject('error set veth link mac: ' + ret.stderr.toString());
             return;
         }
 
-        var ret = child_process.spawnSync('ip', ['link', 'set', 'dev', veth_h, 'up']);
+        var ret = spawnSync('ip', ['link', 'set', 'dev', veth_h, 'up']);
 
         if (ret.status != 0) {
             reject('error set veth link up: ' + ret.stderr.toString());
@@ -202,7 +213,7 @@ function NetworkDriver_DeleteEndpoint(req) {
             return;
         }
 
-        var ret = child_process.spawnSync('ip', ['link', 'delete', cfg.veth_h.name, 'type', 'veth']);
+        var ret = spawnSync('ip', ['link', 'delete', cfg.veth_h.name, 'type', 'veth']);
 
         if (ret.status != 0) {
             reject('error delete veth link: ' + ret.stderr.toString());
@@ -232,7 +243,7 @@ function NetworkDriver_Join(req) {
             return;
         }
 
-        var ret = child_process.spawnSync('brctl', ['addif', cfg_network.bridge_name, cfg_endpoint.veth_h.name]);
+        var ret = spawnSync('brctl', ['addif', cfg_network.bridge_name, cfg_endpoint.veth_h.name]);
 
         if (ret.status != 0) {
             reject('error add interface to bridge: ' + ret.stderr.toString());
@@ -274,7 +285,7 @@ function NetworkDriver_Leave(req) {
             return;
         }
 
-        var ret = child_process.spawnSync('brctl', ['delif', cfg_network.bridge_name, cfg_endpoint.veth_h.name]);
+        var ret = spawnSync('brctl', ['delif', cfg_network.bridge_name, cfg_endpoint.veth_h.name]);
 
         if (ret.status != 0) {
             reject('error del interface from bridge: ' + ret.stderr.toString());
